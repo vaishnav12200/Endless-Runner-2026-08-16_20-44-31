@@ -17,6 +17,7 @@ public class CoinWork : MonoBehaviour
    
         {
             collectedCoin = true;
+            StatControl.coinCount += 1;
             this.gameObject.GetComponent<Animator>().Play("Shrink"); 
             StartCoroutine(DeleteCoin());
         }
