@@ -4,6 +4,7 @@ using UnityEngine;
 public class CoinWork : MonoBehaviour
 {
     [SerializeField] bool collectedCoin;
+    [SerializeField] AudioSource coinDing;
         // Update is called once per frame
     void Update()
     {
@@ -18,6 +19,7 @@ public class CoinWork : MonoBehaviour
         {
             collectedCoin = true;
             StatControl.coinCount += 1;
+            coinDing.Play();
             this.gameObject.GetComponent<Animator>().Play("Shrink"); 
             StartCoroutine(DeleteCoin());
         }

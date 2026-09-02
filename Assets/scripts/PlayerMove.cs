@@ -8,7 +8,8 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] int trackNumber=1;
     [SerializeField] int sideSpeed=9;
     [SerializeField] bool currentMove;
-    [SerializeField] int moveDirection; // 1=left ,2 = right
+    [SerializeField] int moveDirection;
+    [SerializeField] AudioSource whoosh; // 1=left ,2 = right
     void Update()
     {
         transform.Translate(Vector3.forward * Time.deltaTime * moveSpeed, Space.World);
@@ -41,12 +42,14 @@ public class PlayerMove : MonoBehaviour
     {
         if (trackNumber == 1)
         {
+            whoosh.Play();
             currentMove = true;
             moveDirection = 1;
             trackNumber=0;
         }
         if (trackNumber == 2)
         {
+             whoosh.Play();
             currentMove = true;
             moveDirection = 1;
             trackNumber=1;
@@ -56,12 +59,14 @@ public class PlayerMove : MonoBehaviour
     {
         if (trackNumber == 1)
         {
+            whoosh.Play();
             currentMove = true;
             moveDirection = 2;
             trackNumber=2;
         }
         if (trackNumber == 0)
         {
+             whoosh.Play();
             currentMove = true;
             moveDirection = 2;
             trackNumber=1;
