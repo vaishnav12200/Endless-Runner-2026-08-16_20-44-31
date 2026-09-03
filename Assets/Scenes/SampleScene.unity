@@ -1838,7 +1838,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b087bf45d59c497b79f0777a9140937e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CamFollow
-  moveSpeed: 2
+  moveSpeed: 6
 --- !u!1001 &357771482
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3115,7 +3115,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -346, y: 634}
+  m_AnchoredPosition: {x: -346, y: 876}
   m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &568660936
@@ -5995,7 +5995,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -151, y: 637}
+  m_AnchoredPosition: {x: -151, y: 875}
   m_SizeDelta: {x: 215.836, y: 97.935}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1142227595
@@ -7101,7 +7101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cfac7cf09fe2d1bcab7b7208facb5b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  moveSpeed: 2
+  moveSpeed: 6
   xPos: 0
   zPos: 0
   trackNumber: 1
