@@ -44,4 +44,9 @@ public class CollisionReset : MonoBehaviour
             crashFX.Play();
         }
     }
+
+    public void ResetForReuse()
+    {
+        hasTriggered = false;
+    }
 }
