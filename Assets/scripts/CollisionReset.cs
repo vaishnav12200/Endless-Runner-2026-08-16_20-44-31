@@ -2,19 +2,45 @@ using UnityEngine;
 
 public class CollisionReset : MonoBehaviour
 {
-    [SerializeField] GameObject theCamera;
-    [SerializeField] GameObject PlayerCube;
-    [SerializeField] GameObject charAnim;
     [SerializeField] AudioSource crashFX;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    bool hasTriggered;
+
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (hasTriggered)
         {
-            
-            theCamera.GetComponent<CamFollow>().enabled = false;
-            PlayerCube.GetComponent<PlayerMove>().enabled = false;
-            charAnim.GetComponent<Animator>().Play("Falling Back Death");
+            return;
+        }
+
+        PlayerMove playerMove = other.GetComponentInParent<PlayerMove>();
+        if (playerMove == null)
+        {
+            return;
+        }
+
+        hasTriggered = true;
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera != null)
+        {
+            CamFollow cameraFollow = mainCamera.GetComponent<CamFollow>();
+            if (cameraFollow != null)
+            {
+                cameraFollow.enabled = false;
+            }
+        }
+
+        playerMove.enabled = false;
+
+        Animator animator = playerMove.GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            animator.Play("Falling Back Death", 0, 0f);
+        }
+
+        if (crashFX != null)
+        {
             crashFX.Play();
         }
     }
