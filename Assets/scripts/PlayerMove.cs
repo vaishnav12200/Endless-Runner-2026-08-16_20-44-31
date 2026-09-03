@@ -10,67 +10,130 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] bool currentMove;
     [SerializeField] int moveDirection;
     [SerializeField] AudioSource whoosh; // 1=left ,2 = right
+    [SerializeField] Vector3 laneCheckHalfExtents = new Vector3(0.48f, 0.48f, 0.48f);
+
+    readonly Collider[] laneCheckResults = new Collider[16];
+    int previousTrackNumber = 1;
+
     void Update()
     {
         transform.Translate(Vector3.forward * Time.deltaTime * moveSpeed, Space.World);
-        xPos =gameObject.transform.position.x;
-        zPos = gameObject.transform.position.z;
-        if (currentMove == true && moveDirection == 1) //movng left
+
+        xPos = transform.position.x;
+        zPos = transform.position.z;
+
+        if (!currentMove)
         {
-            transform.Translate(Vector3.left * Time.deltaTime * sideSpeed, Space.World);
-            if (xPos <=trackNumber)
-            {
-                currentMove = false;
-                moveDirection = 0;
-                transform.position = new Vector3(trackNumber, 1, zPos);
-            }
-        }
-        if (currentMove == true && moveDirection == 2) //movng right
-        {
-            transform.Translate(Vector3.left * Time.deltaTime * sideSpeed * -1, Space.World);
-            if (xPos >=trackNumber)
-            {
-                currentMove = false;
-                moveDirection = 0;
-                transform.position = new Vector3(trackNumber, 1, zPos);
-            }
+            return;
         }
 
+        if (IsLaneBlocked(trackNumber))
+        {
+            CancelLaneChange();
+            return;
+        }
+
+        float nextX = Mathf.MoveTowards(transform.position.x, trackNumber, sideSpeed * Time.deltaTime);
+        transform.position = new Vector3(nextX, transform.position.y, transform.position.z);
+
+        if (Mathf.Approximately(nextX, trackNumber))
+        {
+            currentMove = false;
+            moveDirection = 0;
+        }
     }
 
     public void LeftMove()
     {
+        if (currentMove)
+        {
+            return;
+        }
+
         if (trackNumber == 1)
         {
-            whoosh.Play();
-            currentMove = true;
-            moveDirection = 1;
-            trackNumber=0;
+            BeginLaneChange(0, 1);
         }
+
         if (trackNumber == 2)
         {
-             whoosh.Play();
-            currentMove = true;
-            moveDirection = 1;
-            trackNumber=1;
+            BeginLaneChange(1, 1);
         }
     }
+
     public void RightMove()
     {
+        if (currentMove)
+        {
+            return;
+        }
+
         if (trackNumber == 1)
         {
-            whoosh.Play();
-            currentMove = true;
-            moveDirection = 2;
-            trackNumber=2;
+            BeginLaneChange(2, 2);
         }
+
         if (trackNumber == 0)
         {
-             whoosh.Play();
-            currentMove = true;
-            moveDirection = 2;
-            trackNumber=1;
+            BeginLaneChange(1, 2);
         }
     }
+
+    void BeginLaneChange(int targetTrack, int direction)
+    {
+        if (IsLaneBlocked(targetTrack))
+        {
+            return;
+        }
+
+        previousTrackNumber = trackNumber;
+        trackNumber = targetTrack;
+        currentMove = true;
+        moveDirection = direction;
+
+        if (whoosh != null)
+        {
+            whoosh.Play();
+        }
+    }
+
+    void CancelLaneChange()
+    {
+        currentMove = false;
+        moveDirection = 0;
+        trackNumber = previousTrackNumber;
+        transform.position = new Vector3(previousTrackNumber, transform.position.y, transform.position.z);
+        xPos = transform.position.x;
+        zPos = transform.position.z;
+    }
+
+    bool IsLaneBlocked(int targetTrack)
+    {
+        Vector3 checkCenter = new Vector3(targetTrack, transform.position.y, transform.position.z);
+        int hitCount = Physics.OverlapBoxNonAlloc(
+            checkCenter,
+            laneCheckHalfExtents,
+            laneCheckResults,
+            Quaternion.identity,
+            Physics.AllLayers,
+            QueryTriggerInteraction.Ignore);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider hit = laneCheckResults[i];
+            laneCheckResults[i] = null;
+
+            if (hit == null || hit.transform == transform || hit.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            if (hit.GetComponentInParent<CollisionReset>() != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
-                                                                
