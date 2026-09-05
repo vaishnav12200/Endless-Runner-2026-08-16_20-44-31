@@ -43,6 +43,11 @@ public class CollisionReset : MonoBehaviour
         {
             crashFX.Play();
         }
+
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.EndGame();
+        }
     }
 
     public void ResetForReuse()

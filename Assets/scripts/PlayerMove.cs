@@ -1,8 +1,18 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class PlayerMove : MonoBehaviour
 {
-    [SerializeField] float moveSpeed =2;
+    [Header("Forward Speed")]
+    [SerializeField] float startingSpeed = 6f;
+    [SerializeField] float moveSpeed = 6f;
+    [SerializeField] float maximumSpeed = 14f;
+    [SerializeField] float speedGainPer100Meters = 0.35f;
+    [SerializeField] float speedGainPer10Coins = 0.15f;
+
+    [Header("Lane Movement")]
     [SerializeField] float xPos;
     [SerializeField] float zPos;
     [SerializeField] int trackNumber=1;
@@ -12,12 +22,54 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] AudioSource whoosh; // 1=left ,2 = right
     [SerializeField] Vector3 laneCheckHalfExtents = new Vector3(0.48f, 0.48f, 0.48f);
 
+    [Header("Mobile Input")]
+    [SerializeField] float minimumSwipeDistance = 60f;
+
     readonly Collider[] laneCheckResults = new Collider[16];
     int previousTrackNumber = 1;
+    Vector2 mouseSwipeStart;
+    bool mouseSwipeInProgress;
+    float distanceTravelled;
+
+    public float DistanceTravelled => distanceTravelled;
+    public float CurrentSpeed => moveSpeed;
+
+    void Awake()
+    {
+        moveSpeed = startingSpeed;
+        previousTrackNumber = trackNumber;
+    }
+
+    void OnEnable()
+    {
+        EnhancedTouchSupport.Enable();
+    }
+
+    void OnDisable()
+    {
+        if (EnhancedTouchSupport.enabled)
+        {
+            EnhancedTouchSupport.Disable();
+        }
+    }
 
     void Update()
     {
-        transform.Translate(Vector3.forward * Time.deltaTime * moveSpeed, Space.World);
+        if (!CanMove())
+        {
+            return;
+        }
+
+        HandleSwipeInput();
+        HandleDesktopInput();
+
+        float distanceBonus = (distanceTravelled / 100f) * speedGainPer100Meters;
+        float coinBonus = (StatControl.coinCount / 10f) * speedGainPer10Coins;
+        moveSpeed = Mathf.Min(maximumSpeed, startingSpeed + distanceBonus + coinBonus);
+
+        float forwardStep = Time.deltaTime * moveSpeed;
+        transform.Translate(Vector3.forward * forwardStep, Space.World);
+        distanceTravelled += forwardStep;
 
         xPos = transform.position.x;
         zPos = transform.position.z;
@@ -45,7 +97,7 @@ public class PlayerMove : MonoBehaviour
 
     public void LeftMove()
     {
-        if (currentMove)
+        if (!CanMove() || currentMove)
         {
             return;
         }
@@ -63,7 +115,7 @@ public class PlayerMove : MonoBehaviour
 
     public void RightMove()
     {
-        if (currentMove)
+        if (!CanMove() || currentMove)
         {
             return;
         }
@@ -135,5 +187,81 @@ public class PlayerMove : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void BeginRun()
+    {
+        distanceTravelled = 0f;
+        moveSpeed = startingSpeed;
+    }
+
+    bool CanMove()
+    {
+        return GameFlowController.Instance == null || GameFlowController.Instance.IsPlaying;
+    }
+
+    void HandleSwipeInput()
+    {
+        if (Touch.activeTouches.Count == 0)
+        {
+            return;
+        }
+
+        Touch touch = Touch.activeTouches[0];
+        if (touch.phase == UnityEngine.InputSystem.TouchPhase.Ended)
+        {
+            TryMoveFromSwipe(touch.screenPosition - touch.startScreenPosition);
+        }
+    }
+
+    void HandleDesktopInput()
+    {
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null)
+        {
+            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame)
+            {
+                LeftMove();
+            }
+            else if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame)
+            {
+                RightMove();
+            }
+        }
+
+        Mouse mouse = Mouse.current;
+        if (mouse == null)
+        {
+            return;
+        }
+
+        if (mouse.leftButton.wasPressedThisFrame)
+        {
+            mouseSwipeStart = mouse.position.ReadValue();
+            mouseSwipeInProgress = true;
+        }
+        else if (mouseSwipeInProgress && mouse.leftButton.wasReleasedThisFrame)
+        {
+            mouseSwipeInProgress = false;
+            TryMoveFromSwipe(mouse.position.ReadValue() - mouseSwipeStart);
+        }
+    }
+
+    void TryMoveFromSwipe(Vector2 swipeDelta)
+    {
+        if (Mathf.Abs(swipeDelta.x) < minimumSwipeDistance ||
+            Mathf.Abs(swipeDelta.x) < Mathf.Abs(swipeDelta.y))
+        {
+            return;
+        }
+
+        if (swipeDelta.x < 0f)
+        {
+            LeftMove();
+        }
+        else
+        {
+            RightMove();
+        }
     }
 }
