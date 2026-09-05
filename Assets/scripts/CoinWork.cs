@@ -44,6 +44,7 @@ public class CoinWork : MonoBehaviour
         Animator animator = GetComponent<Animator>();
         if (animator != null)
         {
+            animator.enabled = true;
             animator.Play("Shrink");
         }
 
@@ -67,6 +68,7 @@ public class CoinWork : MonoBehaviour
         {
             animator.Rebind();
             animator.Update(0f);
+            animator.enabled = false;
         }
 
         transform.localPosition = startingLocalPosition;
