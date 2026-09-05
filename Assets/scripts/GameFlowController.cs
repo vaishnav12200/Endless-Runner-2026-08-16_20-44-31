@@ -21,7 +21,6 @@ public class GameFlowController : MonoBehaviour
 
     [Header("Readouts")]
     [SerializeField] TMP_Text distanceText;
-    [SerializeField] TMP_Text speedText;
     [SerializeField] TMP_Text finalScoreText;
 
     bool isPlaying;
@@ -62,10 +61,6 @@ public class GameFlowController : MonoBehaviour
             distanceText.text = Mathf.FloorToInt(playerMove.DistanceTravelled) + " m";
         }
 
-        if (speedText != null)
-        {
-            speedText.text = playerMove.CurrentSpeed.ToString("0.0") + " speed";
-        }
     }
 
     public void StartGame()

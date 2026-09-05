@@ -8,11 +8,13 @@ public class CoinWork : MonoBehaviour
 
     Vector3 startingLocalPosition;
     Quaternion startingLocalRotation;
+    Vector3 startingLocalScale;
 
     void Awake()
     {
         startingLocalPosition = transform.localPosition;
         startingLocalRotation = transform.localRotation;
+        startingLocalScale = transform.localScale;
     }
 
     void Update()
@@ -58,8 +60,6 @@ public class CoinWork : MonoBehaviour
     {
         StopAllCoroutines();
         collectedCoin = false;
-        transform.localPosition = startingLocalPosition;
-        transform.localRotation = startingLocalRotation;
         gameObject.SetActive(true);
 
         Animator animator = GetComponent<Animator>();
@@ -68,5 +68,9 @@ public class CoinWork : MonoBehaviour
             animator.Rebind();
             animator.Update(0f);
         }
+
+        transform.localPosition = startingLocalPosition;
+        transform.localRotation = startingLocalRotation;
+        transform.localScale = startingLocalScale;
     }
 }

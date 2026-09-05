@@ -10,7 +10,6 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] float moveSpeed = 6f;
     [SerializeField] float maximumSpeed = 14f;
     [SerializeField] float speedGainPer100Meters = 0.35f;
-    [SerializeField] float speedGainPer10Coins = 0.15f;
 
     [Header("Lane Movement")]
     [SerializeField] float xPos;
@@ -64,8 +63,7 @@ public class PlayerMove : MonoBehaviour
         HandleDesktopInput();
 
         float distanceBonus = (distanceTravelled / 100f) * speedGainPer100Meters;
-        float coinBonus = (StatControl.coinCount / 10f) * speedGainPer10Coins;
-        moveSpeed = Mathf.Min(maximumSpeed, startingSpeed + distanceBonus + coinBonus);
+        moveSpeed = Mathf.Min(maximumSpeed, startingSpeed + distanceBonus);
 
         float forwardStep = Time.deltaTime * moveSpeed;
         transform.Translate(Vector3.forward * forwardStep, Space.World);
